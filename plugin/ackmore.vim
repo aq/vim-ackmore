@@ -1,31 +1,19 @@
 " Ack integration.
 
 " Run Ack on the current word starting at the root of this git repo
-nnoremap <Leader>a :AckCurrentWord LAck<CR>
-nnoremap <Leader>A :AckCurrentWord Ack<CR>
-vnoremap <Leader>a :AckVisualRange LAck<CR>
-vnoremap <Leader>A :AckVisualRange Ack<CR>
+nnoremap <Leader>A :AckCurrentWord LAck<CR>
+nnoremap <Leader>a :AckCurrentWord Ack<CR>
+vnoremap <Leader>A :AckVisualRange LAck<CR>
+vnoremap <Leader>a :AckVisualRange Ack<CR>
 
 " Make some commands that invoke functions.
 command! -nargs=1 -range AckVisualRange call AckVisualRange(<f-args>)
 command! -nargs=1 AckCurrentWord call AckCurrentWord(<f-args>)
 
-autocmd BufEnter * call SetGitRoot()
-function! SetGitRoot()
-  if !exists("b:gitroot")
-    " Keep track of the root of the current git repo, if any.
-    " TODO(sissel): Probably should put this in a separate plugin
-    let b:gitroot=system("git rev-parse --show-toplevel | tr -d '\n'")
-  endif
-endfunction " SetGitRoot
-
 function! AckCurrentWord(ackmethod)
-  " Find the git root if we don't already know it.
-  call SetGitRoot()
-
   " a:ackmethod will be 'Ack' or 'LAck'
-  " Run Ack on the current word based on the git root.
-  execute a:ackmethod . " <cword> " . b:gitroot
+  " Run Ack on the current word
+  execute a:ackmethod . " <cword> "
   call QfMappings()
 endfunction " AckCurrentWord
 
@@ -42,8 +30,7 @@ function! AckVisualRange(cmd)
   call setreg("z", l:oldz)
 
   " Do it.
-  call SetGitRoot()
-  execute a:cmd l:string b:gitroot
+  execute a:cmd l:string
   call QfMappings()
 endfunction
 
